@@ -1,0 +1,31 @@
+name: CI y Alerta
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  pruebas-y-notificacion:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Ejecutar pruebas unitarias
+        run: |
+          python -m unittest test_hola.py
+
+      - name: Enviar notificación a ntfy
+        if: success()
+        run: |
+          curl -H "Title: CI Exitosa" \
+               -H "Priority: default" \
+               -d "Las pruebas pasaron correctamente en ${{ github.repository }}. Push realizado por ${{ github.actor }}" \
+               https://ntfy.sh/devops-itla
